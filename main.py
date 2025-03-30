@@ -1,143 +1,216 @@
 import pandas as pd
 import numpy as np
-import torch
-import evaluate
+import re
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
-from datasets import Dataset
-from transformers import (
-    AutoTokenizer,
-    AutoModelForSequenceClassification,
-    Trainer,
-    TrainingArguments
-)
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+from sklearn.metrics import accuracy_score, classification_report
+from imblearn.over_sampling import SMOTE
+from urllib.parse import urlparse
 
-# Read the file manually, treating it as raw text
-with open("modified_spam.csv", "r", encoding="utf-8") as input_file:
+# This class is to pre-process text from the model's training and testing data
+class TextPreprocessor:
+    @staticmethod
+    def clean_text(text):
+        if text is None:
+            return ""
+        # Convert the text to lowercase
+        text = text.lower()  
+        # Remove numbers
+        text = re.sub(r'\b\d+\b', '', text)
+        # Remove special characters except common URL chars
+        text = re.sub(r'[^a-zA-Z0-9\s.:/-]', '', text)  
+        # Normalize words that appear spam-like (characters look funny)
+        text = re.sub(r'\b(fr33|freee|f.r.e.e)\b', 'free', text)  
+         # Normalize obfuscated words 
+        text = re.sub(r'\b(winn3r|winnerz)\b', 'winner', text) 
+        
+        # Find all the URLs present in the message
+        urls = re.findall(r'http\S+|www\S+', text)
+        for url in urls:
+          # Return spam for the message if it contains any of the keywords
+            if any(keyword in url for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']):
+                return 'spam'  
+  
+        # If the URLs do not contain the keywords, extract the domain names
+        text = re.sub(r'http\S+|www\S+', lambda domain_match: urlparse(domain_match.group(0)).netloc, text)  
+        return text
+    
+# This function is to pre-process text when given new inputs from the user
+def preprocess_input(text):
+        text = text.lower()  # Convert to lowercase
+        text = re.sub(r'\b\d+\b', '', text)  # Remove standalone numbers
+        text = re.sub(r'[^a-zA-Z0-9\s.:/-]', '', text)  # Remove special characters except common URL chars
+        text = re.sub(r'\b(fr33|freee|f.r.e.e)\b', 'free', text)  # Normalize spam-like words
+        text = re.sub(r'\b(winn3r|winnerz)\b', 'winner', text)  # Normalize obfuscated words
+        
+        # Find all the URLs present in the message
+        urls = re.findall(r'http\S+|www\S+', text)
+        for url in urls:
+          # Return spam for the message if it contains any of the keywords
+            if any(keyword in url for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']):
+                return 'spam'  # Directly return spam if a URL contains 'spam' or 'scam'
+        
+        # If the URLs do not contain the keywords, extract the domain names
+        text = re.sub(r'http\S+|www\S+', lambda match: urlparse(match.group(0)).netloc, text)  
+        return text
+
+# For each message, this function sets 1 in the column of spam_words if any of the words 'spam', 'scam', 'fraud', 'fake', 'phishing' 
+# are present in the message, otherwise it sets 0
+def add_features(dataframe):
+    dataframe['spam_words'] = dataframe['Message'].apply(lambda x: 1 if any(keyword in x for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']) else 0)
+    return dataframe
+
+# Load dataset
+def load_data():
+  # Read the file manually, treating it as raw text
+  with open("modified_spam.csv", "r", encoding="utf-8") as input_file:
     lines = input_file.readlines()
 
-# Skip the header row
-lines = lines[1:]
-
-# Process each line by splitting at the first comma
-dataset = []
-for line in lines:
+  # Process each line by splitting at the first comma
+  dataset = []
+  for line in lines:
     # Split at the first comma only
-    parts = line.strip().split(",", 1)  
+    parts = line.strip().split(",", 1)
     # Ensure valid split
-    if len(parts) == 2:  
-        dataset.append(parts)
+    if len(parts) == 2:
+        label = parts[0]
+        message = parts[1].rstrip(',')
+        dataset.append([label, message])
     else:
         # Handle missing messages
-        dataset.append([parts[0], ""])  
+        dataset.append([parts[0], ""])
 
-# Create a dataframe with the dataset; create two columns for label and message
-dataframe = pd.DataFrame(dataset, columns=["label", "message"])
-# Map ham = 0 and spam = 1in the label
-dataframe['label'] = dataframe['label'].map({'ham': 0, 'spam': 1})
+  # Create a dataframe with the dataset; create two columns for label and message
+  dataframe = pd.DataFrame(dataset, columns=["Label", "Message"])
 
-# Drop rows that have NaN or inf as labels
- # Remove NaN values
-dataframe = dataframe[~dataframe['label'].isna()] 
-# Remove inf laebls
-dataframe = dataframe[~dataframe['label'].apply(np.isinf)] 
+  # Drop null columns
+  dataframe = dataframe.dropna()
 
-dataframe['label'] = dataframe['label'].astype(int)
+  # Clean the messages in the Message column
+  dataframe["Message"] = dataframe["Message"].apply(TextPreprocessor.clean_text)
 
-# Print first 20 rows
-# print(dataframe.head(20))
+  return dataframe
 
-# Printing certain row of dataframe
-# print(dataframe.loc[427])
+# Train model
+def train_model(df):
+    # Add spam_words column based on messages in dataframe
+    df = add_features(df)
 
-# Train-Test Split
-train_texts, test_texts, train_labels, test_labels = train_test_split(
-    dataframe['message'].tolist(),
-    dataframe['label'].tolist(),
-    test_size=0.2,
-    random_state=42
-)
+    # Split data between training and testing
+    X_train, X_test, y_train, y_test = train_test_split(df["Message"], df["Label"], test_size=0.2, random_state=42)
 
-train_dataset = Dataset.from_dict({'text': train_texts, 'label': train_labels})
-test_dataset = Dataset.from_dict({'text': test_texts, 'label': test_labels})
+    # Align testing and training data
+    y_train[X_train == 'spam'] = 'spam'
+    y_test[X_test == 'spam'] = 'spam'
 
-# Tokenizer and Model Initialization
-tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
-model = AutoModelForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=2)
+    # Apply tf-idf vectorization
+    # N-gram range parameter sets the range of n-grams that are considered (unigrams & bigrams in this case)
+    # Max features parameters allows us to keep just the top 7000 features across all the data
+    vectorizer = TfidfVectorizer(ngram_range=(1, 2), stop_words='english', max_features=7000)
+    # Convert text to numerical data for SMOTE
+    X_train_vec = vectorizer.fit_transform(X_train)  
+    X_test_vec = vectorizer.transform(X_test)
 
-# Preprocessing to Tokenizer
-def preprocess_function(examples):
-    return tokenizer(examples['text'], truncation=True, padding=True)
+    # Add the spam_words feature (as an extra column) to the training and testing vectors
+    X_train_vec_with_spam = np.hstack([X_train_vec.toarray(), df.loc[X_train.index, 'spam_words'].values.reshape(-1, 1)])
+    X_test_vec_with_spam = np.hstack([X_test_vec.toarray(), df.loc[X_test.index, 'spam_words'].values.reshape(-1, 1)])
 
-train_dataset = train_dataset.map(preprocess_function, batched=True)
-test_dataset = test_dataset.map(preprocess_function, batched=True)
+    # Apply SMOTE AFTER vectorization
+    # Random state parameter controls the randomness of the oversampling process
+    # Sampling strategy allows the oversampler to sample the minority class (spam in our case)
+    # until reaching 80% of majority class occurrences (not spam)
+    smote = SMOTE(random_state=42, sampling_strategy=0.8)
+    X_train_resampled, y_train_resampled = smote.fit_resample(X_train_vec, y_train)
 
-# Define Training Argument
-training_args = TrainingArguments(
-    output_dir='./results',
-    eval_strategy="epoch", 
-    save_strategy="epoch",
-    learning_rate=2e-5,
-    per_device_train_batch_size=16,
-    per_device_eval_batch_size=16,
-    num_train_epochs=3,
-    weight_decay=0.01,
-    logging_dir='./logs',
-    logging_steps=10,  
-    load_best_model_at_end=True,
-    report_to="none", 
-)
+    # Create Multinomial Naive Bayes classifer now that data is prepared
+    # For better precision, lower the alpha (went from 0.1 to 0.05)
+    model = MultinomialNB(alpha=0.05)  
+    # Train the model
+    model.fit(X_train_resampled, y_train_resampled)
 
-# Define evaluation metrics
-metric = evaluate.load("accuracy")
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    predictions = logits.argmax(-1)
-    return metric.compute(predictions=predictions, references=labels)
-
-# Initialize the Trainer
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=train_dataset,
-    eval_dataset=test_dataset,
-    tokenizer=tokenizer,
-    compute_metrics=compute_metrics,
-)
-
-# Train the Model
-trainer.train()
-eval_results = trainer.evaluate()
-
-print(f"Accuracy: {eval_results['eval_accuracy'] * 100:.2f}%")
-
-# Make predictions on test portion
-predictions = trainer.predict(test_dataset)
-
-preds = np.argmax(predictions.predictions, axis=1)  
-labels = predictions.label_ids  
-
-# Prints metrics
-print(classification_report(labels, preds, target_names=['Ham', 'Spam']))
-
-def predict_on_input(model, tokenizer, text):
-    # Tokenize the new text
-    inputs = tokenizer(text, truncation=True, padding=True, return_tensors="pt")
+    # Apply model to test data
+    test_predictions = model.predict(X_test_vec)
     
-    # Get the model's prediction (logits)
-    with torch.no_grad():  # Disable gradient calculation for inference
-        outputs = model(**inputs)
-    
-    # Get predicted label (0 for Ham, 1 for Spam)
-    logits = outputs.logits
-    predicted_label = torch.argmax(logits, dim=-1).item()  # Get the predicted class index
-    
-    # Map label to class name (Ham or Spam)
-    label_map = {0: 'Ham', 1: 'Spam'}
-    return label_map[predicted_label]
+    # Display evaluation metrics for test data
+    print("Accuracy:", accuracy_score(y_test, test_predictions))
+    print("Classification Report:\n", classification_report(y_test, test_predictions))
 
-new_message = "Congratulations! You've won a free gift card. Claim now!"
+    # Keep vectorizer and model in a pipeline
+    return make_pipeline(vectorizer, model)  
 
-# Call the prediction function
-prediction = predict_on_input(model, tokenizer, new_message)
-print(f"The message is classified as: {prediction}")
+def predict_messages(model, messages):
+  # Create an array for the messages that will be sent to the model for prediction
+    model_messages = []
+    # For each message, send it to preprocess_input function to clean and check
+    # if it contains any of the keywords 'spam', 'scam', 'fraud', 'fake', 'phishing'
+    for message in messages:
+      cleaned_text = preprocess_input(message)
+      if cleaned_text != "spam":
+        # If the message did not contain the keyword, add it to the model_messages array
+        model_messages.append(message)
+      else:
+        # If preprocess_input returns the word "spam" (meaning it contained one of the keywords),
+        # print the message and the result
+        print(f"Message: {message}\nPredicted: {cleaned_text}\n")
+
+    # Now send the models that were not marked as spam to the model for prediction
+    predictions = model.predict(model_messages)
+
+    # Print the predictions from the model
+    for message, label in zip(model_messages, predictions):
+        print(f"Message: {message}\nPredicted: {label}\n")
+
+if __name__ == "__main__":
+    # Load the dataset and convert it into a usable dataframe
+    loaded_data = load_data()
+    # Create the model using the dataframe
+    model = train_model(loaded_data)
+    
+    # Test messages
+    test_messages = [
+      "Win a free iPhone now! Click here: http://scam.com/win",
+      "Congratulations! You've won a gift card: http://fakepromo.com/gift",
+      "Hurry! Claim your prize before it expires: http://phishingsite.com/prize",
+      "Get rich quick! Learn how: http://fraudsite.com/make-money",
+      "You've been selected for a free vacation! http://scamtravel.com/free-trip",
+      "Your account is compromised! Reset here: http://fakebank.com/reset",
+      "Exclusive deal just for you! http://spamsite.com/deal",
+      "Limited offer! Get 50% off: http://fakepromo.com/deal",
+      "Your PayPal needs verification: http://phishing.com/paypal",
+      "Earn $500 daily from home: http://spamjob.com/work-from-home",
+      "You've won a new car! Claim it here: http://carwin.com/claim",
+      "Unlock your exclusive discount: http://shadydeals.com/save",
+      "Get a free trial for our service: http://fakesite.com/trial",
+      "Special gift for you! Click now: http://giftcardscam.com",
+      "Your Netflix subscription is expiring! Update now: http://fakeflix.com/renew",
+      "Fast weight loss pills! See results now: http://spamhealth.com/lose-weight",
+      "You qualify for a free credit report: http://creditcheckscam.com",
+      "Someone is searching for you! Find out who: http://stalkercheck.com",
+      "Your Amazon order needs confirmation: http://fakeamazon.com/order",
+      "Investment opportunity! Make money fast: http://getrichquick.com",
+      "Hey, check out this article: https://news.com/latest-tech",
+      "Let's meet up later",
+      "I found a great tutorial here: https://learncode.com/python",
+      "This blog post is amazing: https://medium.com/tech-insights",
+      "Join our webinar on AI: https://webinarsite.com/ai-talk",
+      "New research paper published: https://arxiv.org/1234.5678",
+      "Check this documentary: https://netflix.com/documentary",
+      "Read this book review: https://bookreviews.com/great-reads",
+      "This online course is helpful: https://udemy.com/ml-course",
+      "Join our Slack community: https://slack.com/invite",
+      "Follow this coding tutorial: https://github.com/cool-repo",
+      "Watch this educational video: https://youtube.com/lesson123",
+      "Find the event details here: https://eventbrite.com/dev-con",
+      "New job listings available: https://indeed.com/jobs",
+      "Read today's breaking news: https://cnn.com/world-news",
+      "Free educational resources: https://coursera.org/free-courses",
+      "Download our mobile app: https://playstore.com/new-app",
+      "Discover new music playlists: https://spotify.com/hits",
+      "Check out this fun game: https://steam.com/popular-game",
+      "Weekend travel guide: https://tripadvisor.com/destinations"
+    ]
+
+    # Predict using the given test messages and the trained model
+    predict_messages(model, test_messages)
