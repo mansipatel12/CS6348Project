@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 class TextPreprocessor:
     @staticmethod
     def clean_text(text):
+        # If no text is available
         if text is None:
             return ""
         # Convert the text to lowercase
@@ -29,8 +30,12 @@ class TextPreprocessor:
         # Find all the URLs present in the message
         urls = re.findall(r'http\S+|www\S+', text)
         for url in urls:
+          # Get domain of the URL
+          parsed_url = urlparse(url)
+          # Convert the domain to lowercase
+          domain = parsed_url.netloc.lower()
           # Return spam for the message if it contains any of the keywords
-            if any(keyword in url for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']):
+          if any(keyword in domain for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']):
                 return 'spam'  
   
         # If the URLs do not contain the keywords, extract the domain names
@@ -39,17 +44,27 @@ class TextPreprocessor:
     
 # This function is to pre-process text when given new inputs from the user
 def preprocess_input(text):
-        text = text.lower()  # Convert to lowercase
-        text = re.sub(r'\b\d+\b', '', text)  # Remove standalone numbers
-        text = re.sub(r'[^a-zA-Z0-9\s.:/-]', '', text)  # Remove special characters except common URL chars
-        text = re.sub(r'\b(fr33|freee|f.r.e.e)\b', 'free', text)  # Normalize spam-like words
-        text = re.sub(r'\b(winn3r|winnerz)\b', 'winner', text)  # Normalize obfuscated words
+        # Convert to lowercase
+        text = text.lower()  
+        # Remove numbers
+        text = re.sub(r'\b\d+\b', '', text)  
+        # Remove special characters except common URL chars
+        text = re.sub(r'[^a-zA-Z0-9\s.:/-]', '', text)  
+        # Normalize spam-like words (characters look funny)
+        text = re.sub(r'\b(fr33|freee|f.r.e.e)\b', 'free', text) 
+        # Normalize obfuscated words 
+        text = re.sub(r'\b(winn3r|winnerz)\b', 'winner', text)  
         
         # Find all the URLs present in the message
         urls = re.findall(r'http\S+|www\S+', text)
         for url in urls:
+          # Get domain of the URL
+          parsed_url = urlparse(url)
+          # Convert the domain to lowercase
+          domain = parsed_url.netloc.lower()
+          # print(domain)
           # Return spam for the message if it contains any of the keywords
-            if any(keyword in url for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']):
+          if any(keyword in domain for keyword in ['spam', 'scam', 'fraud', 'fake', 'phishing']):
                 return 'spam'  # Directly return spam if a URL contains 'spam' or 'scam'
         
         # If the URLs do not contain the keywords, extract the domain names
@@ -160,6 +175,8 @@ def predict_messages(model, messages):
 
     # Print the predictions from the model
     for message, label in zip(model_messages, predictions):
+        if (label == "ham"):
+          label = "not spam"
         print(f"Message: {message}\nPredicted: {label}\n")
 
 if __name__ == "__main__":
@@ -168,6 +185,7 @@ if __name__ == "__main__":
     # Create the model using the dataframe
     model = train_model(loaded_data)
     
+    '''
     # Test messages
     test_messages = [
       "Win a free iPhone now! Click here: http://scam.com/win",
@@ -213,4 +231,16 @@ if __name__ == "__main__":
     ]
 
     # Predict using the given test messages and the trained model
-    predict_messages(model, test_messages)
+    predict_messages(model, test_messages)'
+  '''
+    test_messages = []
+    # Get user input and classify
+    while True:
+      user_input = input("\nEnter a message to classify (or type 'exit' to quit): ")
+      if user_input.lower() == "exit":
+          break
+      # Make the user input an array for the predict_messages function
+      test_messages.append(user_input+"")
+      predict_messages(model, [test_messages][0])
+      # Clear the array
+      test_messages.clear()
