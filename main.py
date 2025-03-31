@@ -170,14 +170,15 @@ def predict_messages(model, messages):
         # print the message and the result
         print(f"Message: {message}\nPredicted: {cleaned_text}\n")
 
-    # Now send the models that were not marked as spam to the model for prediction
-    predictions = model.predict(model_messages)
+    if (model_messages):
+      # Now send the models that were not marked as spam to the model for prediction
+      predictions = model.predict(model_messages)
 
-    # Print the predictions from the model
-    for message, label in zip(model_messages, predictions):
-        if (label == "ham"):
-          label = "not spam"
-        print(f"Message: {message}\nPredicted: {label}\n")
+      # Print the predictions from the model
+      for message, label in zip(model_messages, predictions):
+          if (label == "ham"):
+            label = "not spam"
+          print(f"Message: {message}\nPredicted: {label}\n")
 
 if __name__ == "__main__":
     # Load the dataset and convert it into a usable dataframe
@@ -241,6 +242,6 @@ if __name__ == "__main__":
           break
       # Make the user input an array for the predict_messages function
       test_messages.append(user_input+"")
-      predict_messages(model, [test_messages][0])
+      predict_messages(model, test_messages)
       # Clear the array
       test_messages.clear()
