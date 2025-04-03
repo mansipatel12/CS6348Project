@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function App() {
   const [inputData, setInputData] = useState("");
@@ -6,18 +7,15 @@ function App() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const response = await fetch("/api/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ inputData }),
-    });
-
-    if (response.ok) {
-      alert("Data submitted successfully!");
-    } else {
-      alert("Error submitting data.");
+    try{
+      const response = await axios.post("/api/submit", inputData);
+      if(Object.keys(response.data).length !== 0){
+        console.log("Website is not safe");
+      } else {
+        console.log("website not yet unsafe");
+      }
+    } catch (error) {
+      console.error("Error in API call:", error.response.data.error);
     }
   };
 
