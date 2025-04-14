@@ -12,8 +12,8 @@ const API_KEY = key;
 
 // API route to handle form submission
 app.post("/api/submit", async (req, res) => {
-  const { inputData } = req.body;
-  if (!inputData) {
+  const { inputUrl } = req.body;
+  if (!inputUrl) {
     return res.status(400).json({ error: "Input data is required" });
   }
 
@@ -29,7 +29,7 @@ app.post("/api/submit", async (req, res) => {
           threatTypes: ["MALWARE", "SOCIAL_ENGINEERING"],
           platformTypes: ["ANY_PLATFORM"],
           threatEntryTypes: ["URL"],
-          threatEntries: [{ url: inputData }]
+          threatEntries: [{ url: inputUrl }]
         }
       });
       return res.status(200).json(httpResponse.data);
