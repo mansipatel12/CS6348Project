@@ -18,7 +18,7 @@
 }
 
 .body-style {
-  margin-top: 50px;
+  margin-top: 20px;
   color: #2CFF05;
   font-family: monospace;
 }
@@ -29,8 +29,10 @@
   border: none;
   padding: 10px;
   border-radius: 5px;
-  width: 300px;
+  width: 350px;
   margin-right: 13px;
+  text-wrap: wrap;
+  height: 100px;
 }
 
 .submit-button {
