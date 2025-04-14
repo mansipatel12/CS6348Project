@@ -1,25 +1,23 @@
 import express from "express";
 import cors from "cors";
+import axios from "axios";
 import {key} from "./api.js";
 
 const app = express();
 app.use(cors());
-const cors = require("cors");
-const bodyParser = require("body-parser");
+app.use(express.json());
+
 
 const API_KEY = key;
 
 // API route to handle form submission
 app.post("/api/submit", async (req, res) => {
   const { inputData } = req.body;
-
   if (!inputData) {
     return res.status(400).json({ error: "Input data is required" });
   }
 
-  console.log("Received data:", inputData);
-
-  // You can process or save the data as needed
+  // Post request to Google Safe Browsing API
   try{
     const httpResponse = await axios.post(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`,
       {
@@ -34,10 +32,10 @@ app.post("/api/submit", async (req, res) => {
           threatEntries: [{ url: inputData }]
         }
       });
-      return res.status(200).json(httpResponse);
+      return res.status(200).json(httpResponse.data);
   } catch {
     return res.status(400).json({error: "API call not successful"});
   }
-
 });
-app.listen(5000, () => console.log("app is running"));
+
+app.listen(5000, () => console.log("server running on port 5000"));
