@@ -1,47 +1,96 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import "./App.css";
 
 function App() {
   const [inputData, setInputData] = useState("");
+  const [showResult, setShowResult] = useState(false);
+  const [messageClass, setMessageClass] = useState("");
+  const [threatTypes, setThreatTypes] = useState("")
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const response = await fetch("/api/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ inputData }),
-    });
-
-    if (response.ok) {
-      alert("Data submitted successfully!");
-    } else {
-      alert("Error submitting data.");
+    try{
+      console.log(inputData);
+      const response = await axios.post("/api/submit", { inputData });
+      if(Object.keys(response.data).length !== 0){
+        console.log("Website is not safe");
+        setThreatTypes(response.data.matches[0].threatType);
+        setMessageClass("Spam");
+      } else {
+        console.log("Website is safe");
+        setMessageClass("Not Spam");
+      }
+      setShowResult(true);
+    } catch (error) {
+      console.error("Error in API call:", error.response.data.error);
+      setShowResult(false);
     }
   };
 
+  // function displayResult({messageClass}){
+  //   if (messageClass === "Spam"){
+  //     return (
+  //       <div>
+  //         <h2 className='result-header'>Report</h2>
+  //         <span>
+  //           <p className='result-text'>Glad you checked. It's a </p>
+  //           <p className='spam-text'>spam message.</p>
+  //         </span>
+  //       </div>
+  //     )
+  //   } else {
+  //     return (
+  //       <div>
+  //         <h2 className='result-header'>Report</h2>
+  //         <span>
+  //           <p>All good! It's</p>
+  //           <p className='not-spam-text'>not a spam message.</p>
+  //         </span>
+  //       </div>
+  //     )
+  //   }
+  // }
+
   return (
-    <div style={{ backgroundColor: "black", color: "#1C1C1C", minHeight: "100vh", textAlign: "center" }}>
-      <nav style={{ backgroundColor: "#282828", padding: "10px" }}>
-        <h2 style={{ margin: "0", color: "#2CFF05", fontFamily:"monospace", fontWeight:"lighter"}}>FraudFilter</h2>
+    <div className='main-background'>
+      <nav className='nav-style'>
+        <h2 className='header'>FraudFilter</h2>
       </nav>
-      <div style={{ marginTop: "50px", color: "#2CFF05", fontFamily: "monospace" }}>
+      <div className='body-style'>
         <h1>Social Media Spam Detector</h1>
         <form onSubmit={handleSubmit}>
           <input
-            style={{ backgroundColor: "#E6E6E6", color: "grey", border: "none", padding: "10px", borderRadius: "5px", width: "300px", marginRight: "13px" }}
+            className='input-style'
             type="text"
             value={inputData}
             onChange={(e) => setInputData(e.target.value)}
             placeholder="Enter link/message for spam detection"
             required
           />
-          <button type="submit" style={{ background: "none", border: "none", padding: "0", cursor: "pointer" }}>
+          <button type="submit" className='submit-button'>
             <img src="/search.png" alt="submit" style={{ width: "20px", height: "20px" }} />
           </button>
         </form>
       </div>
+      {showResult && (
+        <div>
+          <h2 className='result-header'>Report</h2>
+          {messageClass === "Spam" ? (
+            <div>
+              <p className='result-text'>Glad you checked. It's a </p>
+              <p className='spam-text'>spam message.</p>
+              <p className='threats-text'>Threats detected: {threatTypes}</p>
+            </div>
+          ) : (
+            <div>
+              <p className='result-text'>All good! It's </p>
+              <p className='not-spam-text'>not a spam message.</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
