@@ -8,12 +8,20 @@ function App() {
   const [messageClass, setMessageClass] = useState("");
   const [threatTypes, setThreatTypes] = useState("")
 
+
+  function parseInput(inputMessage){
+    const urlExp = /\bhttps?:\/\/(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?/gi;
+    const detectedUrl = inputMessage.match(urlExp);
+    return detectedUrl;
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try{
-      console.log(inputData);
-      const response = await axios.post("/api/submit", { inputData });
+      const inputUrl = parseInput(inputData)[0];
+      console.log(inputUrl);
+      const response = await axios.post("/api/submit", { inputUrl });
       if(Object.keys(response.data).length !== 0){
         console.log("Website is not safe");
         setThreatTypes(response.data.matches[0].threatType);
@@ -29,29 +37,6 @@ function App() {
     }
   };
 
-  // function displayResult({messageClass}){
-  //   if (messageClass === "Spam"){
-  //     return (
-  //       <div>
-  //         <h2 className='result-header'>Report</h2>
-  //         <span>
-  //           <p className='result-text'>Glad you checked. It's a </p>
-  //           <p className='spam-text'>spam message.</p>
-  //         </span>
-  //       </div>
-  //     )
-  //   } else {
-  //     return (
-  //       <div>
-  //         <h2 className='result-header'>Report</h2>
-  //         <span>
-  //           <p>All good! It's</p>
-  //           <p className='not-spam-text'>not a spam message.</p>
-  //         </span>
-  //       </div>
-  //     )
-  //   }
-  // }
 
   return (
     <div className='main-background'>
@@ -61,7 +46,7 @@ function App() {
       <div className='body-style'>
         <h1>Social Media Spam Detector</h1>
         <form onSubmit={handleSubmit}>
-          <input
+          <textarea
             className='input-style'
             type="text"
             value={inputData}
