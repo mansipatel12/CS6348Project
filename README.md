@@ -14,7 +14,7 @@ https://www.kaggle.com/code/shadymohammed205/nlp-meets-sms-distilbert-for-spam-d
 
 The datasets were modified by our team to include URLs in spam messages.
 
-## How to run code (front-end portion)
+## How to run code
 1. Clone project into local folder
     - In the terminal or command line on your computer, use command ```cd "/file/path"``` to navigate to folder of choice to clone project.
     - Click on the green dropdown button called "Code" and copy the repository URL
@@ -22,5 +22,16 @@ The datasets were modified by our team to include URLs in spam messages.
 2. Navigate into the client folder and install npm modules
     - Use command ```cd CS6348Project/client``` to enter folder
     - Use command ```npm install``` to install npm modules
-3. Run the code to display front-end
-    - Use command ```npm start``` to launch localhost
+3. Navigate into the server folder and install npm modules
+   - Use command ```cd ..``` to leave client folder
+   - Use command ```cd server``` to enter folder
+   - Use command ```npm install``` to install npm modules
+5. Run the code to start the server (back-end)
+    - Use command ```node index.js``` to start server
+6. Navigate into the client folder to start front-end
+   - In same terminal:
+       - Use command ```cd ..``` to leave server folder
+       - Use command ```cd client``` to enter folder
+   - In new terminal:
+       -  Use command ```cd client``` to enter folder
+   - Use command ```npm start``` to start localhost
