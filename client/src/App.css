@@ -1,0 +1,70 @@
+.main-background {
+  background-color: black;
+  color: #1C1C1C;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.nav-style {
+  background-color: #282828;
+  padding: 10px;
+}
+
+.header {
+  margin: 0; 
+  color: #2CFF05;
+  font-family: monospace;
+  font-weight: lighter;
+}
+
+.body-style {
+  margin-top: 50px;
+  color: #2CFF05;
+  font-family: monospace;
+}
+
+.input-style {
+  background-color: #E6E6E6;
+  color: grey;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  width: 300px;
+  margin-right: 13px;
+}
+
+.submit-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.result-header {
+  color: #2CFF05;
+  font-family: monospace;
+  font-weight: lighter;
+}
+
+.result-text {
+  color: white;
+  font-family: monospace;
+  display: inline;
+}
+
+.spam-text {
+  color: red;
+  font-family: monospace;
+  display: inline;
+}
+
+.not-spam-text {
+  color: #2CFF05;
+  font-family: monospace;
+  display: inline;
+}
+
+.threats-text {
+  color: white;
+  font-family: monospace;
+}
