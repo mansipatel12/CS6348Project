@@ -1,8 +1,8 @@
 .main-background {
   background-color: black;
   color: #1C1C1C;
-  min-height: 100vh;
   text-align: center;
+  min-height: 100vh;
 }
 
 .nav-style {
@@ -25,12 +25,11 @@
 
 .input-style {
   background-color: #E6E6E6;
-  color: grey;
+  color: rgb(97, 97, 97);
   border: none;
   padding: 10px;
   border-radius: 5px;
-  width: 350px;
-  margin-right: 13px;
+  width: 315px;
   text-wrap: wrap;
   height: 100px;
 }
@@ -38,7 +37,7 @@
 .submit-button {
   background: none;
   border: none;
-  padding: 0;
+  padding-left: 15px;
   cursor: pointer;
 }
 
@@ -51,7 +50,8 @@
 .result-text {
   color: white;
   font-family: monospace;
-  display: inline;
+  text-align: left;
+  margin-left: 20px;
 }
 
 .spam-text {
@@ -66,7 +66,7 @@
   display: inline;
 }
 
-.threats-text {
-  color: white;
-  font-family: monospace;
+.result-box {
+  width: 300px;
+  margin: auto;
 }

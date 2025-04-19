@@ -10,14 +10,14 @@ app.use(express.json());
 
 const API_KEY = key;
 
-// API route to handle form submission
-app.post("/api/submit", async (req, res) => {
+// Completing POST request to Google Safebrowsing API
+app.post("/api/verifyURL", async (req, res) => {
   const { inputUrl } = req.body;
   if (!inputUrl) {
     return res.status(400).json({ error: "Input data is required" });
   }
 
-  // Post request to Google Safe Browsing API
+  // Requesting Google Safe Browsing API
   try{
     const httpResponse = await axios.post(`https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${API_KEY}`,
       {
@@ -33,6 +33,23 @@ app.post("/api/submit", async (req, res) => {
         }
       });
       return res.status(200).json(httpResponse.data);
+  } catch {
+    return res.status(400).json({error: "API call not successful"});
+  }
+});
+
+
+// Completing POST request to ML model for message classification
+app.post("/api/classify", async (req, res) => {
+  const { inputData } = req.body;
+  if (!inputData) {
+    return res.status(400).json({ error: "Input message is required" });
+  }
+
+  // Request to ML model using Flask
+  try{
+    const modelResponse = await axios.post(`http://127.0.0.1:5001/makePrediction`, {text: inputData});
+    return res.status(200).json(modelResponse.data);
   } catch {
     return res.status(400).json({error: "API call not successful"});
   }

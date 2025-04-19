@@ -26,3 +26,6 @@ yarn-error.log*
 
 # api
 server/api.js
+
+# venv
+server/.venv
