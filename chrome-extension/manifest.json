@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "Spam detector",
+    "version": "1.0",
+    "description": "Detect spam ",
+    "permissions": ["activeTab", "scripting"],
+    "host_permissions": ["http://127.0.0.1:5001/*"],
+    "action": {
+      "default_popup": "popup.html",
+      "default_popup_width": 400
+    }
+  }
