@@ -6,8 +6,10 @@ function App() {
   const [inputData, setInputData] = useState("");
   const [showResult, setShowResult] = useState(false);
   const [urlClass, setUrlClass] = useState("");
+  const [urlClassUpgraded, setUrlClassUpgraded] = useState("");
+  const [urlRiskScore, setUrlRiskScore] = useState();
+  const [urlScoreClass, setUrlScoreClass] = useState("");
   const [messageClass, setMessageClass] = useState("");
-  const [threatTypes, setThreatTypes] = useState("")
 
 
   function parseInput(inputMessage) {
@@ -20,29 +22,63 @@ function App() {
     }
   }
 
-  // Determine if URL in message is safe to visit
-  async function checkURL(input) {
+  // Determine if URL in message is safe to visit using Google Safe Browsing API
+  // async function checkURL(input) {
+  //   const inputUrl = parseInput(input)[0];
+  //   console.log(inputUrl);
+
+  //   if (inputUrl === "No URL found"){
+  //     setUrlClass("No URL");
+  //   } else {
+  //     try {
+  //       // Send POST request to Google Safe Browsing API
+  //       const urlResult = await axios.post("/verifyURL", { url: inputUrl });
+  
+  //       if (Object.keys(urlResult.data).length !== 0) {
+  //         console.log("Safe Browsing: Website is not safe");
+  //         setThreatTypes(urlResult.data.matches[0].threatType);
+  //         setUrlClass("Not Safe");
+  //       } else {
+  //         console.log("Safe Browsing: Website is safe");
+  //         setUrlClass("Safe");
+  //       }
+  
+  //     } catch (error) {
+  //       console.error("Error in Safe Browsing API call:", error.response.data.error);
+  //       setShowResult(false);
+  //     }
+  //   }
+  // }
+
+  // Determine if URL in message is safe to visit using IPQS API
+  async function checkURLUpgraded(input) {
     const inputUrl = parseInput(input)[0];
-    console.log(inputUrl);
 
     if (inputUrl === "No URL found"){
-      setUrlClass("No URL");
+      setUrlClassUpgraded("No URL");
     } else {
       try {
-        // Send POST request to Google Safe Browsing API
-        const urlResult = await axios.post("/api/verifyURL", { inputUrl });
-  
-        if (Object.keys(urlResult.data).length !== 0) {
-          console.log("Website is not safe");
-          setThreatTypes(urlResult.data.matches[0].threatType);
-          setUrlClass("Not Safe");
+        // Send POST request to IPQS API
+        const urlResult = await axios.post("/verifyURLUpgraded", { url: inputUrl });
+        setUrlRiskScore(urlResult.data.risk_score);
+
+        // Identify how safe the url is based on risk score
+        if (urlResult.data.risk_score >= 75 && urlResult.data.risk_score < 90) {
+          setUrlClassUpgraded("Not Safe");
+          setUrlScoreClass("Suspicious");
+        } else if (urlResult.data.risk_score >= 90 && urlResult.data.risk_score !== 100){
+          setUrlClassUpgraded("Not Safe");
+          setUrlScoreClass("High Risk");
+        } else if (urlResult.data.risk_score === 100 && (urlResult.data.phising === true || urlResult.data.malware === true)) {
+          setUrlClassUpgraded("Not Safe");
+          setUrlScoreClass("Fraudulent");
         } else {
-          console.log("Website is safe");
-          setUrlClass("Safe");
+          setUrlClassUpgraded("Safe");
+          setUrlScoreClass("Safe");
         }
   
       } catch (error) {
-        console.error("Error in Google Safe Browsing API call:", error.response.data.error);
+        console.error("Error in IPQS call:", error.response.data.error);
         setShowResult(false);
       }
     }
@@ -52,17 +88,18 @@ function App() {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      await checkURL(inputData);
-      console.log(inputData)
-      const messageResult = await axios.post("/api/classify", { inputData });
+      // await checkURL(inputData);
+      await checkURLUpgraded(inputData);
+
+      const messageResult = await axios.post("/makePrediction", { text: inputData });
 
       if (Object.keys(messageResult.data).length !== 0) {
         if(messageResult.data.prediction === 'spam'){
           setMessageClass("Spam");
-          console.log("Message is spam");
+          // console.log("Message is spam");
         } else {
           setMessageClass("Not Spam");
-          console.log("Message is not spam");
+          // console.log("Message is not spam");
         }
       } else {
         console.log("Error: No result from Flask API call");
@@ -108,22 +145,21 @@ function App() {
             </span>
           </p>
 
-          {/* Display result of Google Safe Browsing API */}
+          {/* Display result of IPQS API */}
           <p className="result-text">URL:
-            {urlClass === "Not Safe" || urlClass === "Safe" ? (
-              <span className={urlClass === "Not Safe" ? "spam-text" : "not-spam-text"}>
-                {" " + urlClass}
+            {urlClassUpgraded === "Not Safe" || urlClassUpgraded === "Safe" ? (
+              <span className={urlClassUpgraded === "Not Safe" ? "spam-text" : "not-spam-text"}>
+                {" " + urlScoreClass}
               </span>
             ):
             (
               <span className="result-text">No URL found</span>
             )}
           </p>
-          
-          {/* Display any threats detected by Google Safe Browsing API if URL is not safe */}
-          {urlClass === "Not Safe" && (
-            <p className="result-text">Threats detected from URL: {threatTypes}</p>
-          )}
+
+          {(urlClassUpgraded === "Not Safe" || urlClassUpgraded === "Safe") && 
+            (<p className="result-text">Risk Score of URL: {urlRiskScore}</p>)
+          }
 
         </div>
       )}

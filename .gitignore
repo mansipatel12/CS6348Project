@@ -25,7 +25,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # api
-server/api.js
+server/__pycache__
+server/.env
 
 # venv
 server/.venv
