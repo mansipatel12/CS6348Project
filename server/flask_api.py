@@ -2,12 +2,13 @@ from flask import Flask, request, jsonify
 import requests
 import urllib.parse
 from ml_model import classify_message
-from api_key import key
-from api_key import ipqs_key
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
-API_KEY = key
-IPQS_API_KEY = ipqs_key
+load_dotenv()
+API_KEY = os.getenv("SB_API_KEY")
+IPQS_API_KEY = os.getenv("IPQS_API_KEY")
 
 @app.route('/makePrediction', methods=['POST'])
 def makePrediction():
