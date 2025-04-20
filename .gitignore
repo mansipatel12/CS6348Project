@@ -26,6 +26,7 @@ yarn-error.log*
 
 # api
 server/api.js
+server/api_key.py
 
 # venv
 server/.venv
