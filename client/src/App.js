@@ -226,7 +226,6 @@ function App() {
             </span>
           </p>
           
-
           {/* Display result of IPQS API */}
           <p className="result-text">URL:
             {urlClassUpgraded === "Not Safe" || urlClassUpgraded === "Safe" ? (

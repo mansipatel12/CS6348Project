@@ -13,30 +13,61 @@ Mansi Patel, Chelsea Heredia, Harshitha Devina Anto, Hemal Pathak, Nevin Gilday,
 
 ## Dataset Sources
 
-https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset
-https://www.kaggle.com/code/shadymohammed205/nlp-meets-sms-distilbert-for-spam-detection/input
+[SMS Spam Collection Dataset](https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset)
 
-The datasets were modified by our team to include URLs in spam messages.
+[NLP Meets SMS: DistilBERT for Spam Detection](https://www.kaggle.com/code/shadymohammed205/nlp-meets-sms-distilbert-for-spam-detection/input)
+
+The Kaggle datasets were modified by our team to include URLs in spam messages.
 
 ## How to run code
 
 1. Clone project into local folder
    - In the terminal or command line on your computer, use command `cd "/file/path"` to navigate to folder of choice to clone project.
-   - Click on the green dropdown button called "Code" and copy the repository URL
+   - Click on the green dropdown button called "Code" and copy the HTTPS repository URL
    - To clone, use command `git clone [enter copied url here]`
-2. Navigate into the client folder and install npm modules
+2. Download Node.js to install npm modules - [Download Node.js](https://nodejs.org/en)
+
+3. Navigate into the client folder and install npm modules
    - Use command `cd CS6348Project/client` to enter folder
    - Use command `npm install` to install npm modules
-3. Navigate into the server folder and install npm modules
+4. Navigate into the server folder and install npm modules
    - Use command `cd ..` to leave client folder
    - Use command `cd server` to enter folder
    - Use command `npm install` to install npm modules
-4. Run the code to start the server (back-end)
-   - Use command `node index.js` to start server
-5. Navigate into the client folder to start front-end
-   - In same terminal:
+5. In the `server` folder, install Flask dependencies to run back-end server
+
+   - Make sure you have Python installed already
+     - View this link to download Python if not already installed: [Download Python](https://www.python.org/downloads/)
+   - Create a virtual environment
+     - macOS/Linux: `python3 -m venv .venv`
+     - Windows: `py -3 -m venv .venv`
+   - Activate the virtual environment
+     - macOS/Linux: `. .venv/bin/activate`
+     - Windows: `.venv\Scripts\activate`
+   - Install Flask
+     - Use command `pip install Flask`
+
+6. In the `server` folder, create a new file called `.env`
+
+   - Open the `.env` file
+   - Type this in the file: `IPQS_API_KEY=`
+
+7. The application utilizes the IP Quality Score API, so you will generate an API key to use this service.
+
+   - Visit IPQS and create a free account: [IPQS](https://www.ipqualityscore.com/create-account)
+   - Once your account is created and you're logged in, navigate to the `Settings & Account Management` dropdown in the left side menu.
+   - Within the dropdown, click on `API Keys`
+   - Here you will find your API key, copy the key, and paste it after the `=` in your `.env` file
+   - Make sure to save your file
+
+8. Run the code to start the back-end server
+   - Within the terminal in the `server` folder, make sure your virtual environment is running
+   - Use command `python flask_api.py` to start Flask server
+9. Navigate into the client folder to start front-end
+   - If using the same terminal:
      - Use command `cd ..` to leave server folder
      - Use command `cd client` to enter folder
-   - In new terminal:
+   - If using a a new terminal:
      - Use command `cd client` to enter folder
    - Use command `npm start` to start localhost
+10. The web application will open in your broswer!
