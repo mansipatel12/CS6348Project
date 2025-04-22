@@ -2,25 +2,54 @@
   background-color: black;
   color: #1C1C1C;
   text-align: center;
-  min-height: 100vh;
+  min-height: 110vh;
 }
 
 .nav-style {
   background-color: #282828;
   padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.info-icon {
+  color: white;
+  margin-right: 20px;
+  width: 25px;
+  height: 25px;
+}
+
+.info-box {
+  display: none;
+  width: 300px;
+  height: 325px;
+  position: absolute;
+  right: 20px;
+  text-align: left;
+  border: 2px solid white;
+  border-radius: 10px;
+  color: white;
+  padding: 10px
+}
+
+.info-box-text {
+  font-family: monospace;
+  font-size: 16px;
 }
 
 .header {
-  margin: 0; 
+  margin: auto; 
   color: #2CFF05;
   font-family: monospace;
   font-weight: lighter;
+  font-size: 40px;
 }
 
-.body-style {
+.body-header-style {
   margin-top: 20px;
   color: #2CFF05;
   font-family: monospace;
+  font-size: 25px;
 }
 
 .input-style {
@@ -29,9 +58,10 @@
   border: none;
   padding: 10px;
   border-radius: 5px;
-  width: 315px;
+  width: 655px;
   text-wrap: wrap;
-  height: 100px;
+  height: 175px;
+  font-size: 26px;
 }
 
 .submit-button {
@@ -45,6 +75,7 @@
   color: #2CFF05;
   font-family: monospace;
   font-weight: lighter;
+  font-size: 40px;
 }
 
 .result-text {
@@ -52,21 +83,40 @@
   font-family: monospace;
   text-align: left;
   margin-left: 20px;
+  font-size: 28px;
 }
 
 .spam-text {
   color: red;
   font-family: monospace;
   display: inline;
+  font-size: 28px;
 }
 
 .not-spam-text {
   color: #2CFF05;
   font-family: monospace;
   display: inline;
+  font-size: 28px;
 }
 
 .result-box {
-  width: 300px;
+  width: 600px;
   margin: auto;
+}
+
+.confidence-circle {
+  width: 120px;
+  height: 120px;
+  align-items: center;
+  display: inline-block;
+  margin-left: 90px;
+}
+
+.view-info-text {
+  color: white;
+  font-family: monospace;
+  text-align: left;
+  margin-left: 20px;
+  font-size: 18px;
 }
