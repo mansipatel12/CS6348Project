@@ -175,17 +175,20 @@ def predict_messages(model, messages):
     else:
       # If preprocess_input returns the word "spam" (meaning it contained one of the keywords),
       # add the message and the result
-      result.update({"message": message, "prediction": cleaned_text})
+      result.update({"message": message, "prediction": cleaned_text, "confidence": 1.000})
 
   if (model_messages):
     # Now send the models that were not marked as spam to the model for prediction
     predictions = model.predict(model_messages)
+    probabilities = model.predict_proba(model_messages)
 
-    # Print the predictions from the model
+    # Add the predictions from the model
+    pred_prob = round(probabilities[0][1], 3)
     for message, label in zip(model_messages, predictions):
         if (label == "ham"):
           label = "not spam"
-        result.update({"message": message, "prediction": label})
+          pred_prob = round(probabilities[0][0], 3)
+        result.update({"message": message, "prediction": label, "confidence": pred_prob})
   
   return result
 
