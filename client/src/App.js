@@ -55,7 +55,7 @@ function App() {
   //   } else {
   //     try {
   //       // Send POST request to Google Safe Browsing API
-  //       const urlResult = await axios.post("/verifyURL", { url: inputUrl });
+  //       const urlResult = await axios.post("http://localhost:5000/verifyURL", { url: inputUrl });
   
   //       if (Object.keys(urlResult.data).length !== 0) {
   //         console.log("Safe Browsing: Website is not safe");
@@ -83,7 +83,7 @@ function App() {
     } else {
       try {
         // Send POST request to IPQS API
-        const urlResult = await axios.post("/verifyURLUpgraded", { url: inputUrl });
+        const urlResult = await axios.post("http://localhost:5000/verifyURLUpgraded", { url: inputUrl });
         setUrlRiskScore(urlResult.data.risk_score);
 
         // Identify how safe the URL is based on risk score
@@ -124,7 +124,7 @@ function App() {
       await checkURLUpgraded(inputData);
 
       // API call to ML model
-      const messageResult = await axios.post("/makePrediction", { text: inputData });
+      const messageResult = await axios.post("http://localhost:5000/makePrediction", { text: inputData });
 
       // Evaluating model's result
       if (Object.keys(messageResult.data).length !== 0) {

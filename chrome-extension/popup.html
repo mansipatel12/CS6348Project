@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FraudFilter</title>
+  <style>
+    body {
+      background-color: black;
+      color: #1C1C1C;
+      font-family: monospace;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      max-width: 800px; /* Match the popup width */
+    }
+    h1 {
+      color: #2CFF05;
+      font-weight: lighter;
+      font-size: 40px;
+      white-space: nowrap; /* Prevent wrapping */
+    }
+    select, input, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    select, input {
+      background-color: #E6E6E6;
+      color: rgb(97, 97, 97);
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #resultDisplay {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #282828;
+      border: 1px solid white;
+      border-radius: 10px;
+      color: white;
+      text-align: left;
+      display: none; /* Hide results by default */
+    }
+    .spam-text {
+      color: red;
+    }
+    .not-spam-text {
+      color: #2CFF05;
+    }
+  </style>
+</head>
+<body>
+  <h1>FraudFilter</h1>
+  <select id="linkDropdown">
+    <option value="">Select a link</option>
+  </select>
+  <textarea id="linkInput" placeholder="Enter a link or message" style="box-sizing: border-box; height: 90px; width: 100%;"></textarea>
+  <button id="testButton">Test</button>
+  <div id="resultDisplay"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

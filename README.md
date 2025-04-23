@@ -71,3 +71,115 @@ The Kaggle datasets were modified by our team to include URLs in spam messages.
      - Use command `cd client` to enter folder
    - Use command `npm start` to start localhost
 10. The web application will open in your broswer!
+
+
+# FraudFilter Chrome Extension
+
+FraudFilter is a Chrome extension that helps detect spam messages and evaluate the safety of URLs using machine learning and external APIs.
+
+## Prerequisites
+
+1. **Node.js**: Install [Node.js](https://nodejs.org/) (required for the React client).
+2. **Python**: Install [Python](https://www.python.org/) (required for the Flask server).
+3. **Google Chrome**: Ensure you have Google Chrome installed.
+
+## Setup Instructions
+
+### 1. Clone the Repository
+
+Clone the project repository to your local machine:
+
+```bash
+git clone <repository-url>
+cd CS6348Project
+```
+
+### 2. Set Up the Flask API
+
+1. Navigate to the `server` directory:
+
+   ```bash
+   cd server
+   ```
+
+2. Install the required Python dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Create a `.env` file in the `server` directory and add your API keys:
+
+   ```
+   SB_API_KEY=<Your Google Safe Browsing API Key>
+   IPQS_API_KEY=<Your IP Quality Score API Key>
+   ```
+
+4. Start the Flask server:
+
+   ```bash
+   python flask_api.py
+   ```
+
+   The Flask server will run on `http://127.0.0.1:5000`.
+
+### 3. Set Up the React Client
+
+1. Navigate to the `client` directory:
+
+   ```bash
+   cd ../client
+   ```
+
+2. Install the required Node.js dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the React development server:
+
+   ```bash
+   npm start
+   ```
+
+   The React client will run on `http://localhost:3000`.
+
+### 4. Set Up the Chrome Extension
+
+1. Navigate to the `chrome-extension` directory:
+
+   ```bash
+   cd ../chrome-extension
+   ```
+
+2. Open Google Chrome and go to `chrome://extensions/`.
+
+3. Enable **Developer mode** (toggle in the top-right corner).
+
+4. Click **Load unpacked** and select the `chrome-extension` directory.
+
+5. The FraudFilter extension will now be available in your browser.
+
+### 5. Test the Extension
+
+1. Open any webpage in Google Chrome.
+2. Click on the FraudFilter extension icon in the toolbar.
+3. Use the dropdown to select a link or enter a link/message in the input box.
+4. Click the **Test** button to evaluate the link/message.
+
+---
+
+## Summary of Components
+
+1. **Flask API**: Handles requests for spam detection and URL safety evaluation.
+2. **React Client**: Provides a user interface for testing links/messages.
+3. **Chrome Extension**: Allows users to test links/messages directly from their browser.
+
+---
+
+## Troubleshooting
+
+- Ensure the Flask server is running on `http://127.0.0.1:5000`.
+- Ensure the React client is running on `http://localhost:3000`.
+- Check the browser console for any errors related to the extension.
