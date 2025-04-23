@@ -1,0 +1,7 @@
+pandas
+numpy
+scikit-learn
+imbalanced-learn
+flask
+requests
+python-dotenv
