@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify 
+from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import CORS
 import requests
 import urllib.parse
 from ml_model import classify_message
@@ -6,11 +7,11 @@ from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 load_dotenv()
+
 API_KEY = os.getenv("SB_API_KEY")
 IPQS_API_KEY = os.getenv("IPQS_API_KEY")
-
-
 
 # API call to the ML model to classify the message as spam or not spam
 @app.route('/makePrediction', methods=['POST'])
@@ -24,8 +25,6 @@ def makePrediction():
   # Classify user input using ML Model
   prediction = classify_message([message])
   return jsonify(prediction), 200
-
-
 
 # API call to Google Safe Browsing API to determine if URL is safe
 @app.route('/verifyURL', methods=['POST'])
@@ -56,8 +55,6 @@ def verifyURL():
     print("Safe Browsing API Error:", str(e))
     return jsonify({'error': 'Safe Browsing API call not successful'}), 400
 
-
-
 # API call to IP Quality Score URL Scanner to evaluate URL (more advanced than Google Safe Browsing or Web Risk APIs)
 @app.route('/verifyURLUpgraded', methods=['POST'])
 def verifyURLUpgraded():
@@ -75,8 +72,6 @@ def verifyURLUpgraded():
   except Exception as e:
     print("IPQS API Error:", str(e))
     return jsonify({'error': 'IPQS API call not successful'}), 400
-
-
 
 # Run Flask Server
 if __name__ == "__main__":

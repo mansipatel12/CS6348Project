@@ -1,7 +1,6 @@
-pandas
-numpy
-scikit-learn
-imbalanced-learn
-flask
+flask_cors
 requests
-python-dotenv
+pandas
+scikit-learn
+imblearn
+dotenv

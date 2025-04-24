@@ -55,7 +55,7 @@ function App() {
   //   } else {
   //     try {
   //       // Send POST request to Google Safe Browsing API
-  //       const urlResult = await axios.post("/verifyURL", { url: inputUrl });
+  //       const urlResult = await axios.post("http://localhost:5000/verifyURL", { url: inputUrl });
   
   //       if (Object.keys(urlResult.data).length !== 0) {
   //         console.log("Safe Browsing: Website is not safe");
@@ -83,7 +83,7 @@ function App() {
     } else {
       try {
         // Send POST request to IPQS API
-        const urlResult = await axios.post("/verifyURLUpgraded", { url: inputUrl });
+        const urlResult = await axios.post("http://localhost:5000/verifyURLUpgraded", { url: inputUrl });
         setUrlRiskScore(urlResult.data.risk_score);
         const riskScore = urlResult.data.risk_score;
 
