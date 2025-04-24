@@ -85,6 +85,7 @@ function App() {
         // Send POST request to IPQS API
         const urlResult = await axios.post("/verifyURLUpgraded", { url: inputUrl });
         setUrlRiskScore(urlResult.data.risk_score);
+        const riskScore = urlResult.data.risk_score;
 
         // Identify how safe the URL is based on risk score
         if (urlResult.data.risk_score >= 75 && urlResult.data.risk_score < 90) {
@@ -107,6 +108,7 @@ function App() {
           setUrlClassUpgraded("Safe");
           setUrlScoreClass("Safe");
         }
+        return riskScore;
   
       } catch (error) {
         console.error("Error in IPQS call:", error.response.data.error);
@@ -121,9 +123,9 @@ function App() {
     try {
       // Call APIs to check if URL is safe
       // await checkURL(inputData);
-      await checkURLUpgraded(inputData);
-      console.log(urlRiskScore);  
-      if(urlRiskScore >= 75) {
+      const riskScore = await checkURLUpgraded(inputData);
+ 
+      if(riskScore >= 75) {
         setMessageClass("Spam");
         setPredictionProb(100);
       } else {
@@ -144,7 +146,6 @@ function App() {
         }
       }
 
-      
       setShowResult(true);
     } catch (error) {
       console.error("Error in Flask API call:", error.response.data.error);
