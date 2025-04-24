@@ -1,0 +1,6 @@
+flask_cors
+requests
+pandas
+scikit-learn
+imblearn
+dotenv
