@@ -21,8 +21,8 @@
 
 .info-box {
   display: none;
-  width: 300px;
-  height: 325px;
+  width: 400px;
+  height: 435px;
   position: absolute;
   right: 20px;
   text-align: left;
@@ -34,7 +34,7 @@
 
 .info-box-text {
   font-family: monospace;
-  font-size: 16px;
+  font-size: 22px;
 }
 
 .header {

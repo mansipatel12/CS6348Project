@@ -77,7 +77,7 @@ function App() {
   // Determine if URL in message is safe to visit using IPQS API
   async function checkURLUpgraded(input) {
     const inputUrl = parseInput(input)[0];
-
+    
     if (inputUrl === "No URL found"){
       setUrlClassUpgraded("No URL");
     } else {
@@ -85,6 +85,7 @@ function App() {
         // Send POST request to IPQS API
         const urlResult = await axios.post("http://localhost:5000/verifyURLUpgraded", { url: inputUrl });
         setUrlRiskScore(urlResult.data.risk_score);
+        const riskScore = urlResult.data.risk_score;
 
         // Identify how safe the URL is based on risk score
         if (urlResult.data.risk_score >= 75 && urlResult.data.risk_score < 90) {
@@ -93,13 +94,13 @@ function App() {
         } else if (urlResult.data.risk_score >= 90 && urlResult.data.risk_score !== 100){
           setUrlClassUpgraded("Not Safe");
           setUrlScoreClass("High Risk");
-        } else if (urlResult.data.risk_score === 100 && (urlResult.data.phising === true || urlResult.data.malware === true)) {
+        } else if (urlResult.data.risk_score === 100 && (urlResult.data.phishing === true || urlResult.data.malware === true)) {
           setUrlClassUpgraded("Not Safe");
           setUrlScoreClass("Fraudulent");
-          if(urlResult.data.phising === true && urlResult.data.malware === true){
-            setUrlThreats("Phising and Malware");
-          } else if (urlResult.data.phising === true){
-            setUrlThreats("Phising");
+          if(urlResult.data.phishing === true && urlResult.data.malware === true){
+            setUrlThreats("Phishing and Malware");
+          } else if (urlResult.data.phishing === true){
+            setUrlThreats("Phishing");
           } else if (urlResult.data.malware === true){
             setUrlThreats("Malware");
           }
@@ -107,6 +108,7 @@ function App() {
           setUrlClassUpgraded("Safe");
           setUrlScoreClass("Safe");
         }
+        return riskScore;
   
       } catch (error) {
         console.error("Error in IPQS call:", error.response.data.error);
@@ -121,23 +123,29 @@ function App() {
     try {
       // Call APIs to check if URL is safe
       // await checkURL(inputData);
-      await checkURLUpgraded(inputData);
-
-      // API call to ML model
-      const messageResult = await axios.post("http://localhost:5000/makePrediction", { text: inputData });
-
-      // Evaluating model's result
-      if (Object.keys(messageResult.data).length !== 0) {
-        if(messageResult.data.prediction === 'spam'){
-          setMessageClass("Spam");
-          setPredictionProb(Math.round(messageResult.data.confidence * 100));
-        } else {
-          setMessageClass("Not Spam");
-          setPredictionProb(Math.round(messageResult.data.confidence * 100));
-        }
+      const riskScore = await checkURLUpgraded(inputData);
+ 
+      if(riskScore >= 75) {
+        setMessageClass("Spam");
+        setPredictionProb(100);
       } else {
-        console.log("Error: No result from Flask API call");
+        // API call to ML model
+        const messageResult = await axios.post("http://localhost:5000/makePrediction", { text: inputData });
+
+        // Evaluating model's result
+        if (Object.keys(messageResult.data).length !== 0) {
+          if(messageResult.data.prediction === 'spam'){
+            setMessageClass("Spam");
+            setPredictionProb(Math.round(messageResult.data.confidence * 100));
+          } else {
+            setMessageClass("Not Spam");
+            setPredictionProb(Math.round(messageResult.data.confidence * 100));
+          }
+        } else {
+          console.log("Error: No result from Flask API call");
+        }
       }
+
       setShowResult(true);
     } catch (error) {
       console.error("Error in Flask API call:", error.response.data.error);
@@ -178,7 +186,7 @@ function App() {
             <li>0-74 indicate safe URLs</li>
             <li>75-89 are suspicious</li>
             <li>90-99 are high risk</li>
-            <li>100 is fraudulent and either phising or malware (or both) threats have been detected.</li>
+            <li>100 is fraudulent and either phishing or malware (or both) threats have been detected.</li>
           </ul>
         </ul>
       </div>

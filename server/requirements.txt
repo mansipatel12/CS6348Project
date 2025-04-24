@@ -4,3 +4,5 @@ pandas
 scikit-learn
 imblearn
 dotenv
+flask
+numpy
