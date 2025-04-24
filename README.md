@@ -62,6 +62,12 @@ The Kaggle datasets were modified by our team to include URLs in spam messages.
 
 8. Run the code to start the back-end server
    - Within the terminal in the `server` folder, make sure your virtual environment is running
+   - Install the required Python dependencies:
+
+      ```bash
+      pip install -r requirements.txt
+      ```
+      
    - Use command `python flask_api.py` to start Flask server
 9. Navigate into the client folder to start front-end
    - If using the same terminal:

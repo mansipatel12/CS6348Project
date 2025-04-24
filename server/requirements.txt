@@ -1,0 +1,5 @@
+flask_cors
+requests
+pandas
+scikit-learn
+dotenv
