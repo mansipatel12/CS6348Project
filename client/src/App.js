@@ -77,7 +77,7 @@ function App() {
   // Determine if URL in message is safe to visit using IPQS API
   async function checkURLUpgraded(input) {
     const inputUrl = parseInput(input)[0];
-
+    
     if (inputUrl === "No URL found"){
       setUrlClassUpgraded("No URL");
     } else {
@@ -130,7 +130,7 @@ function App() {
         setPredictionProb(100);
       } else {
         // API call to ML model
-        const messageResult = await axios.post("/makePrediction", { text: inputData });
+        const messageResult = await axios.post("http://localhost:5000/makePrediction", { text: inputData });
 
         // Evaluating model's result
         if (Object.keys(messageResult.data).length !== 0) {

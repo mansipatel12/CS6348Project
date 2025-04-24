@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 import requests
 import urllib.parse
 from ml_model import classify_message
@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 load_dotenv()
 
 API_KEY = os.getenv("SB_API_KEY")
