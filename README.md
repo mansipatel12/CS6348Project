@@ -63,7 +63,7 @@ The Kaggle datasets were modified by our team to include URLs in spam messages.
        ```bash
        .venv\Scripts\activate
        ```
-   - Install Install the required Python dependencies:
+   - Install the required Python dependencies:
 
      ```bash
      pip install -r requirements.txt
