@@ -44,25 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(`Testing link: ${link}`);
       let predictionResult = '';
       let urlResult = '';
-
-      try {
-        // Call the /makePrediction endpoint
-        const predictionResponse = await fetch('http://127.0.0.1:5000/makePrediction', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: link }),
-        });
-        const predictionData = await predictionResponse.json();
-        predictionResult = `
-          <p>We predict it's <span class="${predictionData.prediction === 'spam' ? 'spam-text' : 'not-spam-text'}">
-            ${predictionData.prediction === 'spam' ? 'a spam message.' : 'not a spam message.'}
-          </span></p>
-          <p>Model Confidence: ${Math.round(predictionData.confidence * 100)}%</p>
-        `;
-      } catch (error) {
-        console.error('Error testing link with /makePrediction:', error);
-        predictionResult = '<p style="color: red;">Error: Unable to test the message for spam.</p>';
-      }
+      let urlSafety = '';
 
       try {
         // Check if the input contains a URL
@@ -80,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
           });
           const urlData = await urlResponse.json();
           const riskScore = urlData.risk_score || 'N/A';
-          const urlSafety = riskScore < 75 ? 'Safe' : 'Not Safe';
+          urlSafety = riskScore < 75 ? 'Safe' : 'Not Safe';
           urlResult = `
             <p>URL: <span class="${urlSafety === 'Safe' ? 'not-spam-text' : 'spam-text'}">${urlSafety}</span></p>
             <p>Risk Score of URL: ${riskScore}</p>
@@ -90,6 +72,35 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error testing link with /verifyURLUpgraded:', error);
         urlResult = '<p style="color: red;">Error: Unable to evaluate the URL.</p>';
       }
+
+      if(urlSafety === 'Safe'){
+        try {
+          // Call the /makePrediction endpoint
+          const predictionResponse = await fetch('http://127.0.0.1:5000/makePrediction', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: link }),
+          });
+          const predictionData = await predictionResponse.json();
+          predictionResult = `
+            <p>We predict it's <span class="${predictionData.prediction === 'spam' ? 'spam-text' : 'not-spam-text'}">
+              ${predictionData.prediction === 'spam' ? 'a spam message.' : 'not a spam message.'}
+            </span></p>
+            <p>Model Confidence: ${Math.round(predictionData.confidence * 100)}%</p>
+          `;
+        } catch (error) {
+          console.error('Error testing link with /makePrediction:', error);
+          predictionResult = '<p style="color: red;">Error: Unable to test the message for spam.</p>';
+        }
+      } else {
+        predictionResult = `
+            <p>We predict it's <span class='spam-text'>
+              a spam message.
+            </span></p>
+            <p>Model Confidence: 100%</p>
+          `;
+      }
+      
 
       // Display both results
       resultDisplay.innerHTML = `
