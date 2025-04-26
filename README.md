@@ -13,8 +13,6 @@ Mansi Patel, Chelsea Heredia, Harshitha Devina Anto, Hemal Pathak, Nevin Gilday,
 
 ## Dataset Sources
 
-[SMS Spam Collection Dataset](https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset)
-
 [NLP Meets SMS: DistilBERT for Spam Detection](https://www.kaggle.com/code/shadymohammed205/nlp-meets-sms-distilbert-for-spam-detection/input)
 
 The Kaggle datasets were modified by our team to include URLs in spam messages.
@@ -65,7 +63,7 @@ The Kaggle datasets were modified by our team to include URLs in spam messages.
        ```bash
        .venv\Scripts\activate
        ```
-   - Install Install the required Python dependencies:
+   - Install the required Python dependencies:
 
      ```bash
      pip install -r requirements.txt
