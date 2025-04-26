@@ -86,7 +86,7 @@ function App() {
         const urlResult = await axios.post("http://localhost:5000/verifyURLUpgraded", { url: inputUrl });
         setUrlRiskScore(urlResult.data.risk_score);
         const riskScore = urlResult.data.risk_score;
-
+        
         // Identify how safe the URL is based on risk score
         if (urlResult.data.risk_score >= 75 && urlResult.data.risk_score < 90) {
           setUrlClassUpgraded("Not Safe");
